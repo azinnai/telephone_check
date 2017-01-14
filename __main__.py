@@ -77,13 +77,18 @@ def check_list(check_fileheader,db,savepath,option=False):
     sort=sorted(db[1].keys())
     check_file=check_fileheader[1]
     header=check_fileheader[0]
+    droppedEntries = 0
     if not option:
         for count, name in enumerate(check_file.keys()):
             if name in sort or "373" in name[:3]:
                 print count, ', '.join(map(str, check_file[name]))
                 check_file.pop(name)
+                droppedEntries+=1
         write_file(check_file,savepath,header)
-        return check_file
+        print "############################\n"
+        print "Total number of entries: ", count
+        print "Effective number of entries after cleaning: ", count-droppedEntries+1 
+        return count , count-droppedEntries
     if option:
         logging.warning("db purify mode")
         for name in db[1].keys():
@@ -112,11 +117,10 @@ if __name__=="__main__":
 	        listToCheck=easygui.fileopenbox("seleziona la lista da verificare",filetypes="*.csv", default=defaultNewFile)
 	        goodpath=easygui.enterbox(msg="numero del file nella cartella db, ex: 46")
 	        goodpath=db+"/sidoti."+goodpath+".csv"
-	        if not easygui.boolbox(msg="cartella db: {}\
-	                               file da controllare: {}\
-	                           procedere?".format(db,goodpath)):
+	        if not easygui.boolbox(msg="cartella db: {}\n file da controllare: {}\n procedere?".format(db,goodpath)):
 	            exit(0)
-	        check_dictionary=check_list(check_list_to_dict(listToCheck),db_to_dict(db),savepath=goodpath,option=False)
+	        count=check_list(check_list_to_dict(listToCheck),db_to_dict(db),savepath=goodpath,option=False)
+	        easygui.msgbox(msg="Numero di persone nel nuovo file prima della pulizia: {}\n Numero di persone nel nuovo file dopo la pulizia: {}".format(count[0], count[1]+1))
 	    if proced=="3":
 	        db_inverso=easygui.fileopenbox("seleziona il file database da pulire")
 	        listToCheck=easygui.fileopenbox("seleziona la lista di nomi",filetypes="*.csv")
@@ -143,4 +147,5 @@ if __name__=="__main__":
     	db = str(raw_input("\nInsert the db: \n"))
     	listToCheck =str(raw_input("\nInsert the list to check: \n"))
     	goodpath=str(raw_input("\nInsert the number of the new entry: (ex. 46)\n"))
+    	goodpath=db+"/sidoti."+goodpath+".csv"
     	check_dictionary=check_list(check_list_to_dict(listToCheck),db_to_dict(db),savepath=goodpath,option=False)
