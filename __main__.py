@@ -7,6 +7,9 @@ from collections import defaultdict
 import readline
 import sys
 import easygui
+import multiprocessing
+from multiprocessing import Pool
+from functools import partial
 #import argparse
 
 def all_csv_files(db_folder):
@@ -65,6 +68,10 @@ def check_list_to_dict(listToCheck):
     check_dict={}
     header= import_keys(listToCheck,check_dict)
     return header,check_dict
+def mappedSearch(check_file,sort,name):
+	if name in sort or "373" in name[:3]:
+		print ', '.join(map(str, check_file[name]))
+		return name
 
 def check_list(check_fileheader,db,savepath,option=False):
     '''
@@ -77,18 +84,19 @@ def check_list(check_fileheader,db,savepath,option=False):
     sort=sorted(db[1].keys())
     check_file=check_fileheader[1]
     header=check_fileheader[0]
-    droppedEntries = 0
+    p = Pool(4)
     if not option:
-        for count, name in enumerate(check_file.keys()):
-            if name in sort or "373" in name[:3]:
-                print count, ', '.join(map(str, check_file[name]))
-                check_file.pop(name)
-                droppedEntries+=1
+    	count = len(check_file.keys())
+        func=partial(mappedSearch, check_file, sort)
+        for name in p.map(func,check_file.keys()):
+        	if (name != None):
+        		check_file.pop(name)
+        count_after = len(check_file.keys())
         write_file(check_file,savepath,header)
         print "############################\n"
         print "Total number of entries: ", count
-        print "Effective number of entries after cleaning: ", count-droppedEntries+1 
-        return count , count-droppedEntries
+        print "Effective number of entries after cleaning: ", count_after 
+        return count , count_after
     if option:
         logging.warning("db purify mode")
         for name in db[1].keys():
@@ -117,10 +125,10 @@ if __name__=="__main__":
 	        listToCheck=easygui.fileopenbox("seleziona la lista da verificare",filetypes="*.csv", default=defaultNewFile)
 	        goodpath=easygui.enterbox(msg="numero del file nella cartella db, ex: 46")
 	        goodpath=db+"/sidoti."+goodpath+".csv"
-	        if not easygui.boolbox(msg="cartella db: {}\n file da controllare: {}\n procedere?".format(db,goodpath)):
+	        if not easygui.boolbox(msg="cartella db: {}\nfile da controllare: {}\nprocedere?".format(db,goodpath)):
 	            exit(0)
 	        count=check_list(check_list_to_dict(listToCheck),db_to_dict(db),savepath=goodpath,option=False)
-	        easygui.msgbox(msg="Numero di persone nel nuovo file prima della pulizia: {}\n Numero di persone nel nuovo file dopo la pulizia: {}".format(count[0], count[1]+1))
+	        easygui.msgbox(msg="Numero di persone nel nuovo file prima della pulizia: {}\nNumero di persone nel nuovo file dopo la pulizia: {}".format(count[0], count[1]))
 	    if proced=="3":
 	        db_inverso=easygui.fileopenbox("seleziona il file database da pulire")
 	        listToCheck=easygui.fileopenbox("seleziona la lista di nomi",filetypes="*.csv")
