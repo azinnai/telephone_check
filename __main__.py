@@ -18,6 +18,7 @@ def all_csv_files(db_folder):
     '''
     for file_ in os.listdir(db_folder):
         if file_[-3:]=='csv':
+            print "file found: " + db_folder+"/"+file_ +"\n"
             yield db_folder+"/"+file_
 
 def column(file_):
@@ -27,7 +28,7 @@ def column(file_):
     with open(file_,'r') as csvfile:
         z=csv.reader(csvfile).next()
         for count,tel in enumerate(z):
-            if any(word in tel for word in ["Tel","TEL","tel","tEL","Tel","CEL","cel"]):
+            if any(word in tel for word in ["Tel","TEL","tel","tEL","Tel","CEL","cel","Cel"]):
                 return count
 
 def import_keys(file_,listone):
