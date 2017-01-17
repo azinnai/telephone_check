@@ -10,7 +10,6 @@ import easygui
 import multiprocessing
 from multiprocessing import Pool
 from functools import partial
-#import argparse
 
 def all_csv_files(db_folder):
     '''
@@ -18,7 +17,7 @@ def all_csv_files(db_folder):
     '''
     for file_ in os.listdir(db_folder):
         if file_[-3:]=='csv':
-            print "file found: " + db_folder+"/"+file_ +"\n"
+            print "file found: " + db_folder+"/"+file_
             yield db_folder+"/"+file_
 
 def column(file_):
@@ -60,6 +59,7 @@ def db_to_dict(db):
     else:
         for file_ in all_csv_files(db):
             header=import_keys(file_,dict_)
+    print "The DB contains: ", len(dict_.keys()), "  numbers."
     return header,dict_
 
 def check_list_to_dict(listToCheck):
