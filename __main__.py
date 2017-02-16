@@ -136,16 +136,16 @@ if __name__=="__main__":
 	        check_list(check_list_to_dict(listToCheck),db_to_dict(db_inverso),savepath=db_inverso[:-4]+"I.csv",option=True)
 	    if proced=="2":
 	        again=True
-	        db=easygui.diropenbox(msg="seleziona la cartella con il db",default=default)
+	        db=easygui.diropenbox(msg="seleziona la cartella con il db",default=defaultSidoti)
 	        db=db_to_dict(db)[1]
 	        while again:
 	            search=easygui.enterbox().lower().split()
-	            a=[]
+	            nameList=[]
 	            for name in db.values():
 	                if all(element in "".join(name).lower() for element in search):
 	                    #logging.warn("".join(name)+search)
-	                    a.append(" ".join(name))
-	            easygui.msgbox(msg="\n".join(a))
+	                    nameList.append(" ".join(name))
+	            easygui.msgbox(msg="\n".join(nameList))
 	            again=easygui.boolbox("cercare ancora?")
 	
     if answer == "n":
