@@ -105,12 +105,17 @@ def check_list(check_fileheader,db,savepath,option=False):
                 db[1].pop(name)
         write_file(db[1],savepath,header=db[0])
 
-def write_file(dict_,path,header=None):
-    with open(path,'w+') as csvfile:
-        z=csv.writer(csvfile, delimiter=',')
-        if header: z.writerow(header)
-        for name in dict_.keys():
-            z.writerow(dict_[name])
+def write_file(dict_,path,header=None, only_numbers=None):
+	if only_numbers:
+		z = open(path, "w")
+		for name in dict_.keys():
+			z.write(str(name) + "\n")
+	else:
+		with open(path,'w+') as csvfile:
+			z=csv.writer(csvfile, delimiter=',')
+			if header: z.writerow(header)
+			for name in dict_.keys():
+				z.writerow(dict_[name])
 
 if __name__=="__main__":
     print "executing program!"
@@ -154,7 +159,13 @@ if __name__=="__main__":
 
 
     	db = str(raw_input("\nInsert the db: \n"))
-    	listToCheck =str(raw_input("\nInsert the list to check: \n"))
-    	goodpath=str(raw_input("\nInsert the number of the new entry: (ex. 46)\n"))
-    	goodpath=db+"/sidoti."+goodpath+".csv"
-    	check_dictionary=check_list(check_list_to_dict(listToCheck),db_to_dict(db),savepath=goodpath,option=False)
+    	unify_dbs = str(raw_input("\nDo you want to create a unique file for all the db? (y/n)\n"))
+    	if unify_dbs:
+    		total_db_path = str(raw_input("\nWhere do you want to save the file?\n"))
+    		[header, db_] = db_to_dict(db)
+    		write_file(db_, total_db_path, None, True)
+    	else:
+	    	listToCheck =str(raw_input("\nInsert the list to check: \n"))
+	    	goodpath=str(raw_input("\nInsert the number of the new entry: (ex. 46)\n"))
+	    	goodpath=db+"/sidoti."+goodpath+".csv"
+	    	check_dictionary=check_list(check_list_to_dict(listToCheck),db_to_dict(db),savepath=goodpath,option=False)
