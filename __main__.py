@@ -10,6 +10,15 @@ import easygui
 import multiprocessing
 from multiprocessing import Pool
 from functools import partial
+import re
+
+def onlyNumbers(inputString):
+    number_str = re.findall(r"[0-9]+", inputString)
+    if number_str:
+        number = int(''.join(number_str))
+        return number
+    else:
+        return 0
 
 def all_csv_files(db_folder):
     '''
@@ -54,7 +63,7 @@ def db_to_dict(db):
     '''
     dict_ = defaultdict()
     if os.path.isfile(db):
-        import_keys(db,dict_)
+        import_keys(db, dict_)
     else:
         count = 0
         for file_ in all_csv_files(db):
@@ -121,10 +130,16 @@ def check_list(list_to_check, db_path, save_number):
 
 
 def write_file(dict_, path, header=None, only_numbers=None):
+
     if only_numbers:
-        z = open(path, "w")
-        for name in dict_.keys():
-            z.write(str(name) + "\n")
+        z = open(path, "wb")
+        writer = csv.writer(z)
+        i = 0
+        for name, value in dict_.iteritems():
+            if onlyNumbers(name) > 1000:
+                i = i+1
+                writer.writerow([name])
+        print "Total entries: ", i
     else:
         with open(path,'w+') as csvfile:
             z=csv.writer(csvfile, delimiter=',')
@@ -179,7 +194,7 @@ if __name__=="__main__":
             check_dictionary = check_list(listToCheck, db_path, save_number)
         elif selection == "2":
             total_db_path = str(raw_input("\nWhere do you want to save the file?\n"))
-            [header, db_] = db_to_dict(db_path)
+            db_ = db_to_dict(db_path)
             write_file(db_, total_db_path, None, True)
         elif selection == "3":
             again = "y"
@@ -188,7 +203,7 @@ if __name__=="__main__":
                 nameList = []
                 search = str(raw_input("\nInsert the name and/or surname:\n")).lower().split()
                 print "\n"
-                for name in db_.values():
+                for name in db_.keys():
                     if all(element in "".join(name).lower() for element in search):
                         nameList.append(" ".join(name))
                 print "\n".join(nameList)
